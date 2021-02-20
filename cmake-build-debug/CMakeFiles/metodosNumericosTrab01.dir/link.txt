@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/metodosNumericosTrab01.dir/main.cpp.o CMakeFiles/metodosNumericosTrab01.dir/sdfsd.cpp.o  -o metodosNumericosTrab01 
