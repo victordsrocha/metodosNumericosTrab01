@@ -5,7 +5,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/victor/CLionProjects/metodosNumericosTrab01/main.cpp" "/home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/metodosNumericosTrab01.dir/main.cpp.o"
-  "/home/victor/CLionProjects/metodosNumericosTrab01/sdfsd.cpp" "/home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/metodosNumericosTrab01.dir/sdfsd.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

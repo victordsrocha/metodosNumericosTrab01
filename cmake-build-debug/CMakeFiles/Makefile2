@@ -94,12 +94,12 @@ clean: CMakeFiles/metodosNumericosTrab01.dir/clean
 CMakeFiles/metodosNumericosTrab01.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles --progress-num=1,2,3 "Built target metodosNumericosTrab01"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target metodosNumericosTrab01"
 .PHONY : CMakeFiles/metodosNumericosTrab01.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/metodosNumericosTrab01.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/metodosNumericosTrab01.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/metodosNumericosTrab01.dir/rule

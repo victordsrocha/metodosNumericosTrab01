@@ -87,12 +87,6 @@
 		<Unit filename="/home/victor/CLionProjects/metodosNumericosTrab01/main.cpp">
 			<Option target="metodosNumericosTrab01"/>
 		</Unit>
-		<Unit filename="/home/victor/CLionProjects/metodosNumericosTrab01/sdfsd.cpp">
-			<Option target="metodosNumericosTrab01"/>
-		</Unit>
-		<Unit filename="/home/victor/CLionProjects/metodosNumericosTrab01/sdfsd.h">
-			<Option target="metodosNumericosTrab01"/>
-		</Unit>
 		<Unit filename="/home/victor/CLionProjects/metodosNumericosTrab01/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

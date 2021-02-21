@@ -170,33 +170,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-sdfsd.o: sdfsd.cpp.o
-
-.PHONY : sdfsd.o
-
-# target to build an object file
-sdfsd.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/sdfsd.cpp.o
-.PHONY : sdfsd.cpp.o
-
-sdfsd.i: sdfsd.cpp.i
-
-.PHONY : sdfsd.i
-
-# target to preprocess a source file
-sdfsd.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/sdfsd.cpp.i
-.PHONY : sdfsd.cpp.i
-
-sdfsd.s: sdfsd.cpp.s
-
-.PHONY : sdfsd.s
-
-# target to generate assembly for a file
-sdfsd.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/sdfsd.cpp.s
-.PHONY : sdfsd.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -209,9 +182,6 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... sdfsd.o"
-	@echo "... sdfsd.i"
-	@echo "... sdfsd.s"
 .PHONY : help
 
 
