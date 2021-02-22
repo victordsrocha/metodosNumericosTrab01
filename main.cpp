@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <list>
+#include <fstream>
 
 using namespace std;
 
@@ -37,6 +38,8 @@ public:
     list<Resultado> resultados;
 
     void imprimir_quadro();
+
+    void gerar_quadro_csv();
 };
 
 void Quadro::imprimir_quadro() {
@@ -46,6 +49,48 @@ void Quadro::imprimir_quadro() {
         resultados.front().imprimir_resultado();
         resultados.pop_front();
         cout << "~~~~~~~~~~~~~~~~~~~~~~~\n\n";
+    }
+}
+
+void Quadro::gerar_quadro_csv() {
+    ofstream myFile;
+    myFile.open("resultados.csv");
+
+    myFile << "id,a3,a2,metodo,lambda,d,numero de iteracoes" << endl;
+
+    int tam = resultados.size();
+    for (int i = 0; i < tam; ++i) {
+
+        Resultado r = resultados.front();
+
+        myFile << i + 1 << ","
+               << r.a3 << ","
+               << r.a2 << ","
+               << r.metodo << ",";
+
+        if (r.solucao) {
+            if (r.metodo == "FL") {
+                myFile << r.lambda << ","
+                       << r.d << ","
+                       << r.num_iter << endl;
+            } else {
+                myFile << "" << ","
+                       << r.d << ","
+                       << r.num_iter << endl;
+            }
+        } else {
+            if (r.metodo == "FL") {
+                myFile << r.lambda << ","
+                       << "" << ","
+                       << "" << endl;
+            } else {
+                myFile << "" << ","
+                       << "" << ","
+                       << "" << endl;
+            }
+        }
+
+        resultados.pop_front();
     }
 }
 
@@ -201,7 +246,8 @@ int main() {
         encontrarRaizes(quadro);
     }
 
-    quadro.imprimir_quadro();
+    //quadro.imprimir_quadro();
+    quadro.gerar_quadro_csv();
     return 0;
 }
 
