@@ -134,6 +134,13 @@ double *gerar_vetor_isolamentos(double *isolamentos) {
     return isolamentos;
 }
 
+// gera os pontos inicias com base na média dos valores a e b de isolamento da raiz
+double *gerar_vetor_pontos_iniciais(double *iniciais, const double *isolamentos) {
+    for (int i = 0; i < 3; ++i) {
+        iniciais[i] = (isolamentos[2 * i] + isolamentos[2 * i + 1]) / 2;
+    }
+}
+
 double derivada_fpendulo(double d) {
     return 3 * a3 * pow(d, 2) - 9 * a2;
 }
@@ -280,6 +287,8 @@ int main() {
 
     double isolamentos[6];
     gerar_vetor_isolamentos(isolamentos);
+    double iniciais[3];
+    gerar_vetor_pontos_iniciais(iniciais, isolamentos);
 
     return 0;
 }
