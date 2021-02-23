@@ -105,6 +105,35 @@ double fpendulo(double d) {
     return a3 * pow(d, 3) - 9 * a2 * d + 3;
 }
 
+bool bolzano_fpendulo(double a, double b) {
+    return fpendulo(a) * fpendulo(b) < 0;
+}
+
+// Preenche vetor isolamentos com os isolamentos das 3 raizes procuradas no turno atual
+// utilizando o teorema de bolzano no intervalo [-100,100]
+double *gerar_vetor_isolamentos(double *isolamentos) {
+    double min = -100; // valor minimo para a busca de isolamentos
+    double max = 100; // valor maximo para a busca de isolamentos
+    double resolucao = 0.1; // resolucao da busca
+
+    // a e b são os valores testados a cada iteracao
+    double a = min;
+    double b = min + resolucao;
+
+    int i = 0; // posicao do vetor isolamentos
+    while (i < 6 || b > max) {
+        // cria um par de isolamentos sempre que o teorema de bolzano retorna verdadeiro
+        if (bolzano_fpendulo(a, b)) {
+            isolamentos[i] = a;
+            isolamentos[i + 1] = b;
+            i += 2;
+        }
+        a = a + resolucao;
+        b = b + resolucao;
+    }
+    return isolamentos;
+}
+
 double derivada_fpendulo(double d) {
     return 3 * a3 * pow(d, 2) - 9 * a2;
 }
@@ -248,6 +277,10 @@ int main() {
 
     //quadro.imprimir_quadro();
     quadro.gerar_quadro_csv();
+
+    double isolamentos[6];
+    gerar_vetor_isolamentos(isolamentos);
+
     return 0;
 }
 
