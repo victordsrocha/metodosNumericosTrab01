@@ -5,18 +5,34 @@
 
 using namespace std;
 
+double a3 = 1;
+double a2 = 1;
+double precisao = 0.001;
+double d0 = 0.5;
+double lambda = 0.05;
+int n_lambda = 1;
+int n_parametros = 1;
+list<double> lambda_list;
+list<double> a3_list;
+list<double> a2_list;
+
 class Resultado {
 
 public:
     Resultado();
 
-    bool solucao{};
-    double d{};
-    double a3{};
-    double a2{};
-    double lambda{};
+    //bool solucao{};
+    double raiz_1;
+    double raiz_2;
+    double raiz_3;
+    double f_d_1;
+    double f_d_2;
+    double f_d_3;
+    double a3;
+    double a2;
+    double lambda;
     string metodo;
-    int num_iter{};
+    int num_iter;
 
     void imprimir_resultado();
 };
@@ -94,12 +110,6 @@ void Quadro::gerar_quadro_csv() {
     }
 }
 
-
-double a3 = 1;
-double a2 = 1;
-double precisao = 0.001;
-double d0 = 0.5;
-double lambda = 0.05;
 
 double fpendulo(double d) {
     return a3 * pow(d, 3) - 9 * a2 * d + 3;
@@ -255,10 +265,125 @@ void encontrarRaizes(Quadro &quadro) {
     quadro.resultados.push_back(newton_FL());
 }
 
+void encontrar_raizes(){
+    for (int i = 0; i < n_parametros; ++i) {
+        a3 = a3_list.front();
+        a2 = a2_list.front();
+
+
+
+    }
+
+}
+
+void print_cabecalho() {
+    cout << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+" << endl;
+    cout << "+    Calculadora de raizes da funçao f(d) = (a3)d^3 - 9(a2)d + 3       +" << endl;
+    cout << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+" << endl;
+    cout << endl;
+}
+
+void input_precisao() {
+    system("clear");
+    print_cabecalho();
+    cout << "Digite um valor para a precisao: ";
+    cin >> precisao;
+
+    while ((!cin) || precisao <= 0 || precisao > 0.1) {
+        cin.clear();
+        cin.ignore(numeric_limits<int>::max(), '\n');
+        cout
+                << "Precisao não está no formato correto. A Precisao deve ser um valor real no intervalo ]0,0.1].\nDigite novamente: ";
+        cin >> precisao;
+    }
+}
+
+void input_parametros() {
+    system("clear");
+    print_cabecalho();
+
+    cout << "Digite a quantidade de pares para os parametros a3 e a2: ";
+    cin >> n_parametros;
+
+    while ((!cin) || n_parametros <= 0 || n_parametros > 10) {
+        cin.clear();
+        cin.ignore(numeric_limits<int>::max(), '\n');
+        cout << "Quantidade não está no formato correto. "
+                "A quantidade deve ser um número inteiro maior ou igual a 1 e menor do que 10.";
+        cout << "\nDigite novamente: ";
+        cin >> n_lambda;
+    }
+
+    for (int i = 0; i < n_parametros; ++i) {
+        double a3_, a2_;
+        cout << "\nPar (" << i + 1 << "). Digite um valor para o parametro a3: ";
+        cin >> a3_;
+
+        while ((!cin)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Formato incorreto. O parametro a3 deve ser um numero real.\nDigite novamente: ";
+            cin >> a3_;
+        }
+
+        cout << "Par (" << i + 1 << "). Digite um valor para o parametro a2: ";
+        cin >> a2_;
+
+        while ((!cin)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Formato incorreto. O parametro a2 deve ser um numero real.\nDigite novamente: ";
+            cin >> a2_;
+        }
+
+        a3_list.push_back(a3_);
+        a2_list.push_back(a2_);
+    }
+
+
+}
+
+void input_lambda() {
+    system("clear");
+    print_cabecalho();
+    cout << "Digite a quantidade de opcoes para lambda: ";
+    cin >> n_lambda;
+
+    while ((!cin) || n_lambda <= 0 || n_lambda > 10) {
+        cin.clear();
+        cin.ignore(numeric_limits<int>::max(), '\n');
+        cout
+                << "Quantidade não está no formato correto. A quantidade deve ser um número inteiro maior ou igual a 1 e menor do que 10.\nDigite novamente: ";
+        cin >> n_lambda;
+    }
+
+    for (int i = 0; i < n_lambda; ++i) {
+        double lambda_;
+        cout << "Digite o valor de lambda da opcao " << i + 1 << ": ";
+        cin >> lambda_;
+        while ((!cin || lambda_ <= 0 || lambda_ > 0.1)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Formato incorreto. Lambda deve ser um valor real no intervalo ]0,0.1].\nDigite novamente: ";
+            cin >> lambda_;
+        }
+        lambda_list.push_back(lambda_);
+    }
+}
+
+void input() {
+    input_parametros();
+    input_lambda();
+    input_precisao();
+    system("clear");
+}
+
 int main() {
     Quadro quadro;
-    int n_lambda;
 
+    input();
+
+    /*
     cout << "Insira o numero de opcoes para lambda: ";
     cin >> n_lambda;
 
@@ -289,6 +414,7 @@ int main() {
     gerar_vetor_isolamentos(isolamentos);
     double iniciais[3];
     gerar_vetor_pontos_iniciais(iniciais, isolamentos);
+    */
 
     return 0;
 }
