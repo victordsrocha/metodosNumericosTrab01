@@ -129,7 +129,7 @@ resultado_individual newton_original(int i_x, int i_a) {
     }
 
     res.isolamento[0] = isolamentos[i_a];
-    res.isolamento[1] = isolamentos[i_a];
+    res.isolamento[1] = isolamentos[i_a+1];
     return res;
 }
 
@@ -205,7 +205,7 @@ resultado_individual newton_derivada(int i_x, int i_a) {
     }
 
     res.isolamento[0] = isolamentos[i_a];
-    res.isolamento[1] = isolamentos[i_a];
+    res.isolamento[1] = isolamentos[i_a+1];
     return res;
 }
 
@@ -288,7 +288,7 @@ resultado_individual newton_FL(int i_x, int i_a, double lambda_) {
         res.num_iter = numIteracoes;
     }
     res.isolamento[0] = isolamentos[i_a];
-    res.isolamento[1] = isolamentos[i_a];
+    res.isolamento[1] = isolamentos[i_a+1];
     return res;
 }
 
@@ -350,7 +350,7 @@ void cabecalho_resultado(){
 
 void registrar_resultado(const resultado_geral &rg) {
     ofstream myFile;
-    myFile.open("resultados.csv");
+    myFile.open("resultados.csv", std::fstream::out | std::fstream::app);
 
     myFile << registro_id << ","
            << rg.a3 << ","
@@ -363,7 +363,7 @@ void registrar_resultado(const resultado_geral &rg) {
         myFile << "" << ",";
     }
 
-    myFile << rg.isolamento_1[0] << " - " << rg.isolamento_1[1] << ",";
+    myFile << rg.isolamento_1[0] << " ~ " << rg.isolamento_1[1] << ",";
 
     if (rg.solucao_1) {
         myFile << rg.raiz_1 << "," << rg.f_d_1 << "," << rg.num_iter_1 << ",";
@@ -371,11 +371,15 @@ void registrar_resultado(const resultado_geral &rg) {
         myFile << "" << "," << "" << "," << "" << ",";
     }
 
+    myFile << rg.isolamento_2[0] << " ~ " << rg.isolamento_2[1] << ",";
+
     if (rg.solucao_2) {
         myFile << rg.raiz_2 << "," << rg.f_d_2 << "," << rg.num_iter_2 << ",";
     } else {
         myFile << "" << "," << "" << "," << "" << ",";
     }
+
+    myFile << rg.isolamento_3[0] << " ~ " << rg.isolamento_3[1] << ",";
 
     if (rg.solucao_3) {
         myFile << rg.raiz_3 << "," << rg.f_d_3 << "," << rg.num_iter_3;
@@ -392,6 +396,9 @@ void encontrar_raizes() {
     for (int i = 0; i < n_parametros; ++i) {
         a3 = a3_list.front();
         a2 = a2_list.front();
+
+        gerar_vetor_isolamentos(isolamentos);
+        gerar_vetor_pontos_iniciais(iniciais,isolamentos);
 
         resultado_geral original = newton_original_geral();
         registrar_resultado(original);
@@ -526,6 +533,7 @@ void output(){
 int main() {
 
     input();
+    cabecalho_resultado();
     encontrar_raizes();
     output();
 
