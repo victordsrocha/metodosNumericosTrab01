@@ -18,8 +18,7 @@ list<double> a3_list;
 list<double> a2_list;
 double isolamentos[6];
 double iniciais[3];
-
-
+int qtd_raizes;
 
 struct resultado_geral {
     bool solucao_1{};
@@ -71,7 +70,7 @@ double *gerar_vetor_isolamentos(double *isolamentos_) {
     double b = min + resolucao;
 
     int i = 0; // posicao do vetor isolamentos
-    while (i < 6 || b > max) {
+    while (i < 6 && b <= max) {
         // cria um par de isolamentos sempre que o teorema de bolzano retorna verdadeiro
         if (bolzano_fpendulo(a, b)) {
             isolamentos_[i] = a;
@@ -81,12 +80,13 @@ double *gerar_vetor_isolamentos(double *isolamentos_) {
         a = a + resolucao;
         b = b + resolucao;
     }
+    qtd_raizes = i / 2;
     return isolamentos_;
 }
 
 // gera os pontos inicias com base na média dos valores a e b de isolamento da raiz
 double *gerar_vetor_pontos_iniciais(double *iniciais_, const double *isolamentos_) {
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < qtd_raizes; ++i) {
         iniciais_[i] = (isolamentos_[2 * i] + isolamentos_[2 * i + 1]) / 2;
     }
 }
@@ -129,15 +129,13 @@ resultado_individual newton_original(int i_x, int i_a) {
     }
 
     res.isolamento[0] = isolamentos[i_a];
-    res.isolamento[1] = isolamentos[i_a+1];
+    res.isolamento[1] = isolamentos[i_a + 1];
     return res;
 }
 
 resultado_geral newton_original_geral() {
 
     resultado_individual r1 = newton_original(0, 0);
-    resultado_individual r2 = newton_original(1, 2);
-    resultado_individual r3 = newton_original(2, 4);
 
     resultado_geral rg;
 
@@ -146,14 +144,8 @@ resultado_geral newton_original_geral() {
     rg.metodo = "original";
     rg.isolamento_1[0] = r1.isolamento[0];
     rg.isolamento_1[1] = r1.isolamento[1];
-    rg.isolamento_2[0] = r2.isolamento[0];
-    rg.isolamento_2[1] = r2.isolamento[1];
-    rg.isolamento_3[0] = r3.isolamento[0];
-    rg.isolamento_3[1] = r3.isolamento[1];
 
     rg.solucao_1 = r1.solucao;
-    rg.solucao_2 = r2.solucao;
-    rg.solucao_3 = r3.solucao;
 
     if (rg.solucao_1) {
         rg.raiz_1 = r1.raiz;
@@ -161,16 +153,29 @@ resultado_geral newton_original_geral() {
         rg.f_d_1 = r1.f_d;
     }
 
-    if (rg.solucao_2) {
-        rg.raiz_2 = r2.raiz;
-        rg.num_iter_2 = r2.num_iter;
-        rg.f_d_2 = r2.f_d;
-    }
+    if (qtd_raizes == 3) {
+        resultado_individual r2 = newton_original(1, 2);
+        resultado_individual r3 = newton_original(2, 4);
 
-    if (rg.solucao_3) {
-        rg.raiz_3 = r3.raiz;
-        rg.num_iter_3 = r3.num_iter;
-        rg.f_d_3 = r3.f_d;
+        rg.isolamento_2[0] = r2.isolamento[0];
+        rg.isolamento_2[1] = r2.isolamento[1];
+        rg.isolamento_3[0] = r3.isolamento[0];
+        rg.isolamento_3[1] = r3.isolamento[1];
+
+        rg.solucao_2 = r2.solucao;
+        rg.solucao_3 = r3.solucao;
+
+        if (rg.solucao_2) {
+            rg.raiz_2 = r2.raiz;
+            rg.num_iter_2 = r2.num_iter;
+            rg.f_d_2 = r2.f_d;
+        }
+
+        if (rg.solucao_3) {
+            rg.raiz_3 = r3.raiz;
+            rg.num_iter_3 = r3.num_iter;
+            rg.f_d_3 = r3.f_d;
+        }
     }
 
     return rg;
@@ -205,15 +210,13 @@ resultado_individual newton_derivada(int i_x, int i_a) {
     }
 
     res.isolamento[0] = isolamentos[i_a];
-    res.isolamento[1] = isolamentos[i_a+1];
+    res.isolamento[1] = isolamentos[i_a + 1];
     return res;
 }
 
 resultado_geral newton_derivada_geral() {
 
     resultado_individual r1 = newton_derivada(0, 0);
-    resultado_individual r2 = newton_derivada(1, 2);
-    resultado_individual r3 = newton_derivada(2, 4);
 
     resultado_geral rg;
 
@@ -222,14 +225,8 @@ resultado_geral newton_derivada_geral() {
     rg.metodo = "derivada num.";
     rg.isolamento_1[0] = r1.isolamento[0];
     rg.isolamento_1[1] = r1.isolamento[1];
-    rg.isolamento_2[0] = r2.isolamento[0];
-    rg.isolamento_2[1] = r2.isolamento[1];
-    rg.isolamento_3[0] = r3.isolamento[0];
-    rg.isolamento_3[1] = r3.isolamento[1];
 
     rg.solucao_1 = r1.solucao;
-    rg.solucao_2 = r2.solucao;
-    rg.solucao_3 = r3.solucao;
 
     if (rg.solucao_1) {
         rg.raiz_1 = r1.raiz;
@@ -237,16 +234,29 @@ resultado_geral newton_derivada_geral() {
         rg.f_d_1 = r1.f_d;
     }
 
-    if (rg.solucao_2) {
-        rg.raiz_2 = r2.raiz;
-        rg.num_iter_2 = r2.num_iter;
-        rg.f_d_2 = r2.f_d;
-    }
+    if (qtd_raizes == 3) {
+        resultado_individual r2 = newton_derivada(1, 2);
+        resultado_individual r3 = newton_derivada(2, 4);
 
-    if (rg.solucao_3) {
-        rg.raiz_3 = r3.raiz;
-        rg.num_iter_3 = r3.num_iter;
-        rg.f_d_3 = r3.f_d;
+        rg.isolamento_2[0] = r2.isolamento[0];
+        rg.isolamento_2[1] = r2.isolamento[1];
+        rg.isolamento_3[0] = r3.isolamento[0];
+        rg.isolamento_3[1] = r3.isolamento[1];
+
+        rg.solucao_2 = r2.solucao;
+        rg.solucao_3 = r3.solucao;
+
+        if (rg.solucao_2) {
+            rg.raiz_2 = r2.raiz;
+            rg.num_iter_2 = r2.num_iter;
+            rg.f_d_2 = r2.f_d;
+        }
+
+        if (rg.solucao_3) {
+            rg.raiz_3 = r3.raiz;
+            rg.num_iter_3 = r3.num_iter;
+            rg.f_d_3 = r3.f_d;
+        }
     }
 
     return rg;
@@ -288,15 +298,13 @@ resultado_individual newton_FL(int i_x, int i_a, double lambda_) {
         res.num_iter = numIteracoes;
     }
     res.isolamento[0] = isolamentos[i_a];
-    res.isolamento[1] = isolamentos[i_a+1];
+    res.isolamento[1] = isolamentos[i_a + 1];
     return res;
 }
 
 resultado_geral newton_FL_geral(double _lambda) {
 
     resultado_individual r1 = newton_FL(0, 0, _lambda);
-    resultado_individual r2 = newton_FL(1, 2, _lambda);
-    resultado_individual r3 = newton_FL(2, 4, _lambda);
 
     resultado_geral rg;
 
@@ -307,14 +315,8 @@ resultado_geral newton_FL_geral(double _lambda) {
     rg.metodo = "FL";
     rg.isolamento_1[0] = r1.isolamento[0];
     rg.isolamento_1[1] = r1.isolamento[1];
-    rg.isolamento_2[0] = r2.isolamento[0];
-    rg.isolamento_2[1] = r2.isolamento[1];
-    rg.isolamento_3[0] = r3.isolamento[0];
-    rg.isolamento_3[1] = r3.isolamento[1];
 
     rg.solucao_1 = r1.solucao;
-    rg.solucao_2 = r2.solucao;
-    rg.solucao_3 = r3.solucao;
 
     if (rg.solucao_1) {
         rg.raiz_1 = r1.raiz;
@@ -322,26 +324,39 @@ resultado_geral newton_FL_geral(double _lambda) {
         rg.f_d_1 = r1.f_d;
     }
 
-    if (rg.solucao_2) {
-        rg.raiz_2 = r2.raiz;
-        rg.num_iter_2 = r2.num_iter;
-        rg.f_d_2 = r2.f_d;
-    }
+    if (qtd_raizes == 3) {
+        resultado_individual r2 = newton_FL(1, 2, _lambda);
+        resultado_individual r3 = newton_FL(2, 4, _lambda);
 
-    if (rg.solucao_3) {
-        rg.raiz_3 = r3.raiz;
-        rg.num_iter_3 = r3.num_iter;
-        rg.f_d_3 = r3.f_d;
+        rg.isolamento_2[0] = r2.isolamento[0];
+        rg.isolamento_2[1] = r2.isolamento[1];
+        rg.isolamento_3[0] = r3.isolamento[0];
+        rg.isolamento_3[1] = r3.isolamento[1];
+
+        rg.solucao_2 = r2.solucao;
+        rg.solucao_3 = r3.solucao;
+
+        if (rg.solucao_2) {
+            rg.raiz_2 = r2.raiz;
+            rg.num_iter_2 = r2.num_iter;
+            rg.f_d_2 = r2.f_d;
+        }
+
+        if (rg.solucao_3) {
+            rg.raiz_3 = r3.raiz;
+            rg.num_iter_3 = r3.num_iter;
+            rg.f_d_3 = r3.f_d;
+        }
     }
 
     return rg;
 }
 
-void cabecalho_resultado(){
+void cabecalho_resultado() {
     ofstream myFile;
     myFile.open("resultados.csv");
 
-    myFile << "id,a3,a2,metodo,lambda,"
+    myFile << "id,a3,a2,metodo,lambda, qtd raizes reais,"
               "isolamento raiz 1,raiz 1,f(raiz1),num interacoes 1,"
               "isolamento raiz 2,raiz 2,f(raiz2),num interacoes 2,"
               "isolamento raiz 3,raiz 3,f(raiz3),num interacoes 3"
@@ -363,6 +378,8 @@ void registrar_resultado(const resultado_geral &rg) {
         myFile << "" << ",";
     }
 
+    myFile << qtd_raizes << ",";
+
     myFile << rg.isolamento_1[0] << " ~ " << rg.isolamento_1[1] << ",";
 
     if (rg.solucao_1) {
@@ -371,20 +388,24 @@ void registrar_resultado(const resultado_geral &rg) {
         myFile << "" << "," << "" << "," << "" << ",";
     }
 
-    myFile << rg.isolamento_2[0] << " ~ " << rg.isolamento_2[1] << ",";
+    if (qtd_raizes == 3) {
+        myFile << rg.isolamento_2[0] << " ~ " << rg.isolamento_2[1] << ",";
 
-    if (rg.solucao_2) {
-        myFile << rg.raiz_2 << "," << rg.f_d_2 << "," << rg.num_iter_2 << ",";
+        if (rg.solucao_2) {
+            myFile << rg.raiz_2 << "," << rg.f_d_2 << "," << rg.num_iter_2 << ",";
+        } else {
+            myFile << "" << "," << "" << "," << "" << ",";
+        }
+
+        myFile << rg.isolamento_3[0] << " ~ " << rg.isolamento_3[1] << ",";
+
+        if (rg.solucao_3) {
+            myFile << rg.raiz_3 << "," << rg.f_d_3 << "," << rg.num_iter_3;
+        } else {
+            myFile << "" << "," << "" << "," << "";
+        }
     } else {
-        myFile << "" << "," << "" << "," << "" << ",";
-    }
-
-    myFile << rg.isolamento_3[0] << " ~ " << rg.isolamento_3[1] << ",";
-
-    if (rg.solucao_3) {
-        myFile << rg.raiz_3 << "," << rg.f_d_3 << "," << rg.num_iter_3;
-    } else {
-        myFile << "" << "," << "" << "," << "";
+        myFile << "" << "," << "" << "," << "" << "," << "" << "," << "" << "," << "" << "," << "" << ",";
     }
 
     myFile << endl;
@@ -398,7 +419,7 @@ void encontrar_raizes() {
         a2 = a2_list.front();
 
         gerar_vetor_isolamentos(isolamentos);
-        gerar_vetor_pontos_iniciais(iniciais,isolamentos);
+        gerar_vetor_pontos_iniciais(iniciais, isolamentos);
 
         resultado_geral original = newton_original_geral();
         registrar_resultado(original);
@@ -521,7 +542,7 @@ void input() {
     input_precisao();
 }
 
-void output(){
+void output() {
     system("clear");
     print_cabecalho();
 
