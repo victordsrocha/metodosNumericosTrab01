@@ -5,6 +5,7 @@
 
 using namespace std;
 
+int registro_id = 1;
 double a3 = 1;
 double a2 = 1;
 double precisao = 0.001;
@@ -15,101 +16,40 @@ int n_parametros = 1;
 list<double> lambda_list;
 list<double> a3_list;
 list<double> a2_list;
+double isolamentos[6];
+double iniciais[3];
 
-class Resultado {
 
-public:
-    Resultado();
 
-    //bool solucao{};
-    double raiz_1;
-    double raiz_2;
-    double raiz_3;
-    double f_d_1;
-    double f_d_2;
-    double f_d_3;
-    double a3;
-    double a2;
-    double lambda;
+struct resultado_geral {
+    bool solucao_1{};
+    bool solucao_2{};
+    bool solucao_3{};
+    double isolamento_1[2]{};
+    double isolamento_2[2]{};
+    double isolamento_3[2]{};
+    double raiz_1{};
+    double raiz_2{};
+    double raiz_3{};
+    double f_d_1{};
+    double f_d_2{};
+    double f_d_3{};
+    int num_iter_1{};
+    int num_iter_2{};
+    int num_iter_3{};
+    double a3{};
+    double a2{};
+    double lambda{};
     string metodo;
-    int num_iter;
-
-    void imprimir_resultado();
 };
 
-void Resultado::imprimir_resultado() {
-    cout << "f(d) = (" << a3 << ")d^3 - 9(" << a2 << ")d + 3" << endl;
-    if (metodo == "FL") cout << "lambda = " << lambda << endl;
-    cout << "d = " << d << endl;
-    cout << "metodo = " << metodo << endl;
-    cout << "numero de iteracoes = " << num_iter << endl;
-}
-
-Resultado::Resultado() {
-}
-
-
-class Quadro {
-public:
-    list<Resultado> resultados;
-
-    void imprimir_quadro();
-
-    void gerar_quadro_csv();
+struct resultado_individual {
+    bool solucao{};
+    double isolamento[2]{};
+    double raiz{};
+    double f_d{};
+    int num_iter{};
 };
-
-void Quadro::imprimir_quadro() {
-    int tam = resultados.size();
-    for (int i = 0; i < tam; ++i) {
-        cout << "Resultado " << i + 1 << ":\n\n";
-        resultados.front().imprimir_resultado();
-        resultados.pop_front();
-        cout << "~~~~~~~~~~~~~~~~~~~~~~~\n\n";
-    }
-}
-
-void Quadro::gerar_quadro_csv() {
-    ofstream myFile;
-    myFile.open("resultados.csv");
-
-    myFile << "id,a3,a2,metodo,lambda,d,numero de iteracoes" << endl;
-
-    int tam = resultados.size();
-    for (int i = 0; i < tam; ++i) {
-
-        Resultado r = resultados.front();
-
-        myFile << i + 1 << ","
-               << r.a3 << ","
-               << r.a2 << ","
-               << r.metodo << ",";
-
-        if (r.solucao) {
-            if (r.metodo == "FL") {
-                myFile << r.lambda << ","
-                       << r.d << ","
-                       << r.num_iter << endl;
-            } else {
-                myFile << "" << ","
-                       << r.d << ","
-                       << r.num_iter << endl;
-            }
-        } else {
-            if (r.metodo == "FL") {
-                myFile << r.lambda << ","
-                       << "" << ","
-                       << "" << endl;
-            } else {
-                myFile << "" << ","
-                       << "" << ","
-                       << "" << endl;
-            }
-        }
-
-        resultados.pop_front();
-    }
-}
-
 
 double fpendulo(double d) {
     return a3 * pow(d, 3) - 9 * a2 * d + 3;
@@ -121,7 +61,7 @@ bool bolzano_fpendulo(double a, double b) {
 
 // Preenche vetor isolamentos com os isolamentos das 3 raizes procuradas no turno atual
 // utilizando o teorema de bolzano no intervalo [-100,100]
-double *gerar_vetor_isolamentos(double *isolamentos) {
+double *gerar_vetor_isolamentos(double *isolamentos_) {
     double min = -100; // valor minimo para a busca de isolamentos
     double max = 100; // valor maximo para a busca de isolamentos
     double resolucao = 0.1; // resolucao da busca
@@ -134,20 +74,20 @@ double *gerar_vetor_isolamentos(double *isolamentos) {
     while (i < 6 || b > max) {
         // cria um par de isolamentos sempre que o teorema de bolzano retorna verdadeiro
         if (bolzano_fpendulo(a, b)) {
-            isolamentos[i] = a;
-            isolamentos[i + 1] = b;
+            isolamentos_[i] = a;
+            isolamentos_[i + 1] = b;
             i += 2;
         }
         a = a + resolucao;
         b = b + resolucao;
     }
-    return isolamentos;
+    return isolamentos_;
 }
 
 // gera os pontos inicias com base na média dos valores a e b de isolamento da raiz
-double *gerar_vetor_pontos_iniciais(double *iniciais, const double *isolamentos) {
+double *gerar_vetor_pontos_iniciais(double *iniciais_, const double *isolamentos_) {
     for (int i = 0; i < 3; ++i) {
-        iniciais[i] = (isolamentos[2 * i] + isolamentos[2 * i + 1]) / 2;
+        iniciais_[i] = (isolamentos_[2 * i] + isolamentos_[2 * i + 1]) / 2;
     }
 }
 
@@ -160,10 +100,13 @@ double nDeriv(double x, double (*function)(double)) {
     return (function(x + h) - function(x - h)) / (2 * h);
 }
 
-Resultado newton_original() {
-    double x = d0;
+resultado_individual newton_original(int i_x, int i_a) {
+
+    double x = iniciais[i_x];
+
     int maxIteracoes = 100;
     int numIteracoes;
+
     bool solucao = false;
 
     for (int i = 0; i < maxIteracoes; ++i) {
@@ -177,24 +120,145 @@ Resultado newton_original() {
         }
         x = x - y / dy;
     }
-    Resultado resultado;
-    resultado.solucao = solucao;
+    resultado_individual res;
+    res.solucao = solucao;
     if (solucao) {
-        resultado.d = x;
-        resultado.num_iter = numIteracoes;
+        res.raiz = x;
+        res.f_d = fpendulo(x);
+        res.num_iter = numIteracoes;
     }
-    resultado.a2 = a2;
-    resultado.a3 = a3;
-    resultado.metodo = "original";
-    return resultado;
+
+    res.isolamento[0] = isolamentos[i_a];
+    res.isolamento[1] = isolamentos[i_a];
+    return res;
 }
 
-Resultado newton_FL() {
-    double x = d0; // palpite inicial (derivada do ponto inicial deve ser >= lambda)
-    int maxIteracoes = 20;
+resultado_geral newton_original_geral() {
+
+    resultado_individual r1 = newton_original(0, 0);
+    resultado_individual r2 = newton_original(1, 2);
+    resultado_individual r3 = newton_original(2, 4);
+
+    resultado_geral rg;
+
+    rg.a3 = a3;
+    rg.a2 = a2;
+    rg.metodo = "original";
+    rg.isolamento_1[0] = r1.isolamento[0];
+    rg.isolamento_1[1] = r1.isolamento[1];
+    rg.isolamento_2[0] = r2.isolamento[0];
+    rg.isolamento_2[1] = r2.isolamento[1];
+    rg.isolamento_3[0] = r3.isolamento[0];
+    rg.isolamento_3[1] = r3.isolamento[1];
+
+    rg.solucao_1 = r1.solucao;
+    rg.solucao_2 = r2.solucao;
+    rg.solucao_3 = r3.solucao;
+
+    if (rg.solucao_1) {
+        rg.raiz_1 = r1.raiz;
+        rg.num_iter_1 = r1.num_iter;
+        rg.f_d_1 = r1.f_d;
+    }
+
+    if (rg.solucao_2) {
+        rg.raiz_2 = r2.raiz;
+        rg.num_iter_2 = r2.num_iter;
+        rg.f_d_2 = r2.f_d;
+    }
+
+    if (rg.solucao_3) {
+        rg.raiz_3 = r3.raiz;
+        rg.num_iter_3 = r3.num_iter;
+        rg.f_d_3 = r3.f_d;
+    }
+
+    return rg;
+}
+
+resultado_individual newton_derivada(int i_x, int i_a) {
+
+    double x = iniciais[i_x];
+
+    int maxIteracoes = 100;
+    int numIteracoes;
+
+    bool solucao = false;
+
+    for (int i = 0; i < maxIteracoes; ++i) {
+        double y = fpendulo(x);
+        double dy = nDeriv(x, fpendulo);
+
+        if (abs(y) < precisao) {
+            solucao = true;
+            numIteracoes = i + 1;
+            break;
+        }
+        x = x - y / dy;
+    }
+    resultado_individual res;
+    res.solucao = solucao;
+    if (solucao) {
+        res.raiz = x;
+        res.f_d = fpendulo(x);
+        res.num_iter = numIteracoes;
+    }
+
+    res.isolamento[0] = isolamentos[i_a];
+    res.isolamento[1] = isolamentos[i_a];
+    return res;
+}
+
+resultado_geral newton_derivada_geral() {
+
+    resultado_individual r1 = newton_derivada(0, 0);
+    resultado_individual r2 = newton_derivada(1, 2);
+    resultado_individual r3 = newton_derivada(2, 4);
+
+    resultado_geral rg;
+
+    rg.a3 = a3;
+    rg.a2 = a2;
+    rg.metodo = "derivada num.";
+    rg.isolamento_1[0] = r1.isolamento[0];
+    rg.isolamento_1[1] = r1.isolamento[1];
+    rg.isolamento_2[0] = r2.isolamento[0];
+    rg.isolamento_2[1] = r2.isolamento[1];
+    rg.isolamento_3[0] = r3.isolamento[0];
+    rg.isolamento_3[1] = r3.isolamento[1];
+
+    rg.solucao_1 = r1.solucao;
+    rg.solucao_2 = r2.solucao;
+    rg.solucao_3 = r3.solucao;
+
+    if (rg.solucao_1) {
+        rg.raiz_1 = r1.raiz;
+        rg.num_iter_1 = r1.num_iter;
+        rg.f_d_1 = r1.f_d;
+    }
+
+    if (rg.solucao_2) {
+        rg.raiz_2 = r2.raiz;
+        rg.num_iter_2 = r2.num_iter;
+        rg.f_d_2 = r2.f_d;
+    }
+
+    if (rg.solucao_3) {
+        rg.raiz_3 = r3.raiz;
+        rg.num_iter_3 = r3.num_iter;
+        rg.f_d_3 = r3.f_d;
+    }
+
+    return rg;
+}
+
+resultado_individual newton_FL(int i_x, int i_a, double lambda_) {
+    double x = iniciais[i_x];
+    int maxIteracoes = 100;
+    int numIteracoes;
+
     bool solucao = false;
     double xw;
-    int numIteracoes;
 
     for (int i = 0; i < maxIteracoes; ++i) {
         double y = fpendulo(x);
@@ -207,7 +271,7 @@ Resultado newton_FL() {
         }
 
         double FL;
-        if (abs(dy) > lambda) {
+        if (abs(dy) > lambda_) {
             xw = x;
             FL = dy;
         } else {
@@ -216,64 +280,137 @@ Resultado newton_FL() {
 
         x = x - y / FL;
     }
-    Resultado resultado;
-    resultado.solucao = solucao;
+    resultado_individual res;
+    res.solucao = solucao;
     if (solucao) {
-        resultado.d = x;
-        resultado.num_iter = numIteracoes;
+        res.raiz = x;
+        res.f_d = fpendulo(x);
+        res.num_iter = numIteracoes;
     }
-    resultado.lambda = lambda;
-    resultado.a2 = a2;
-    resultado.a3 = a3;
-    resultado.metodo = "FL";
-    return resultado;
+    res.isolamento[0] = isolamentos[i_a];
+    res.isolamento[1] = isolamentos[i_a];
+    return res;
 }
 
-Resultado newton_derivada_numerica() {
-    double x = d0; // palpite inicial
-    int maxIteracoes = 20;
-    bool solucao = false;
-    int numIteracoes;
+resultado_geral newton_FL_geral(double _lambda) {
 
-    for (int i = 0; i < maxIteracoes; ++i) {
-        double y = fpendulo(x);
-        double dy = nDeriv(x, fpendulo);
+    resultado_individual r1 = newton_FL(0, 0, _lambda);
+    resultado_individual r2 = newton_FL(1, 2, _lambda);
+    resultado_individual r3 = newton_FL(2, 4, _lambda);
 
-        if (abs(y) < precisao) {
-            solucao = true;
-            numIteracoes = i + 1;
-            break;
-        }
+    resultado_geral rg;
 
-        x = x - y / dy;
+    rg.lambda = lambda_list.front();
+
+    rg.a3 = a3;
+    rg.a2 = a2;
+    rg.metodo = "FL";
+    rg.isolamento_1[0] = r1.isolamento[0];
+    rg.isolamento_1[1] = r1.isolamento[1];
+    rg.isolamento_2[0] = r2.isolamento[0];
+    rg.isolamento_2[1] = r2.isolamento[1];
+    rg.isolamento_3[0] = r3.isolamento[0];
+    rg.isolamento_3[1] = r3.isolamento[1];
+
+    rg.solucao_1 = r1.solucao;
+    rg.solucao_2 = r2.solucao;
+    rg.solucao_3 = r3.solucao;
+
+    if (rg.solucao_1) {
+        rg.raiz_1 = r1.raiz;
+        rg.num_iter_1 = r1.num_iter;
+        rg.f_d_1 = r1.f_d;
     }
-    Resultado resultado;
-    resultado.solucao = solucao;
-    if (solucao) {
-        resultado.d = x;
-        resultado.num_iter = numIteracoes;
+
+    if (rg.solucao_2) {
+        rg.raiz_2 = r2.raiz;
+        rg.num_iter_2 = r2.num_iter;
+        rg.f_d_2 = r2.f_d;
     }
-    resultado.a2 = a2;
-    resultado.a3 = a3;
-    resultado.metodo = "derivada num.";
-    return resultado;
+
+    if (rg.solucao_3) {
+        rg.raiz_3 = r3.raiz;
+        rg.num_iter_3 = r3.num_iter;
+        rg.f_d_3 = r3.f_d;
+    }
+
+    return rg;
 }
 
-void encontrarRaizes(Quadro &quadro) {
-    quadro.resultados.push_back(newton_original());
-    quadro.resultados.push_back(newton_derivada_numerica());
-    quadro.resultados.push_back(newton_FL());
+void cabecalho_resultado(){
+    ofstream myFile;
+    myFile.open("resultados.csv");
+
+    myFile << "id,a3,a2,metodo,lambda,"
+              "isolamento raiz 1,raiz 1,f(raiz1),num interacoes 1,"
+              "isolamento raiz 2,raiz 2,f(raiz2),num interacoes 2,"
+              "isolamento raiz 3,raiz 3,f(raiz3),num interacoes 3"
+           << endl;
 }
 
-void encontrar_raizes(){
+void registrar_resultado(const resultado_geral &rg) {
+    ofstream myFile;
+    myFile.open("resultados.csv");
+
+    myFile << registro_id << ","
+           << rg.a3 << ","
+           << rg.a2 << ","
+           << rg.metodo << ",";
+
+    if (rg.metodo == "FL") {
+        myFile << rg.lambda << ",";
+    } else {
+        myFile << "" << ",";
+    }
+
+    myFile << rg.isolamento_1[0] << " - " << rg.isolamento_1[1] << ",";
+
+    if (rg.solucao_1) {
+        myFile << rg.raiz_1 << "," << rg.f_d_1 << "," << rg.num_iter_1 << ",";
+    } else {
+        myFile << "" << "," << "" << "," << "" << ",";
+    }
+
+    if (rg.solucao_2) {
+        myFile << rg.raiz_2 << "," << rg.f_d_2 << "," << rg.num_iter_2 << ",";
+    } else {
+        myFile << "" << "," << "" << "," << "" << ",";
+    }
+
+    if (rg.solucao_3) {
+        myFile << rg.raiz_3 << "," << rg.f_d_3 << "," << rg.num_iter_3;
+    } else {
+        myFile << "" << "," << "" << "," << "";
+    }
+
+    myFile << endl;
+    myFile.close();
+    registro_id++;
+}
+
+void encontrar_raizes() {
     for (int i = 0; i < n_parametros; ++i) {
         a3 = a3_list.front();
         a2 = a2_list.front();
 
+        resultado_geral original = newton_original_geral();
+        registrar_resultado(original);
 
+        resultado_geral derivada_numerica = newton_derivada_geral();
+        registrar_resultado(derivada_numerica);
 
+        for (int j = 0; j < n_lambda; ++j) {
+            double lambda_front = lambda_list.front();
+            resultado_geral FL = newton_FL_geral(lambda_front);
+
+            registrar_resultado(FL);
+
+            lambda_list.pop_front();
+            lambda_list.push_back(lambda_front);
+        }
+        a3_list.pop_front();
+        a2_list.pop_front();
     }
-
 }
 
 void print_cabecalho() {
@@ -375,46 +512,22 @@ void input() {
     input_parametros();
     input_lambda();
     input_precisao();
+}
+
+void output(){
     system("clear");
+    print_cabecalho();
+
+    cout << "A tabela resultados.csv contendo todos os resultados foi criada no mesmo diretorio "
+            "deste programa\n";
+    cout << "Pressione qualquer tecla para fechar";
 }
 
 int main() {
-    Quadro quadro;
 
     input();
-
-    /*
-    cout << "Insira o numero de opcoes para lambda: ";
-    cin >> n_lambda;
-
-    cout << "Insira a precisao desejada para os calculos: ";
-    cin >> precisao;
-
-    for (int i = 0; i < n_lambda; ++i) {
-
-        cout << "Lambda numero " << i + 1 << endl;
-        cout << "Insira os seguintes valores: \n";
-
-        cout << "Valor de lambda: ";
-        cin >> lambda;
-
-        cout << "Valor de a3: ";
-        cin >> a3;
-
-        cout << "Valor de a2: ";
-        cin >> a2;
-
-        encontrarRaizes(quadro);
-    }
-
-    //quadro.imprimir_quadro();
-    quadro.gerar_quadro_csv();
-
-    double isolamentos[6];
-    gerar_vetor_isolamentos(isolamentos);
-    double iniciais[3];
-    gerar_vetor_pontos_iniciais(iniciais, isolamentos);
-    */
+    encontrar_raizes();
+    output();
 
     return 0;
 }

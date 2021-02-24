@@ -1,4 +1,2 @@
-id,a3,a2,metodo,lambda,d,numero de iteracoes
-1,1,1,original,,0.333333,2
-2,1,1,derivada num.,,0.333333,2
-3,1,1,FL,1,0.333333,2
+id,a3,a2,metodo,lambda,isolamento raiz 1,raiz 1,f(raiz1),num interacoes 1,isolamento raiz 2,raiz 2,f(raiz2),num interacoes 2,isolamento raiz 3,raiz 3,f(raiz3),num interacoes 3
+8,5,6,FL,0.010 - 0,0.0555556,0.000857339,2,0.0555556,0.000857339,2,0.0555556,0.000857339,2
