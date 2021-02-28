@@ -1,3 +1,3 @@
-/home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/victor/CLionProjects/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/metodosNumericosTrab01.dir
+/home/victor/dev/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/victor/dev/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/victor/dev/metodosNumericosTrab01/cmake-build-debug/CMakeFiles/metodosNumericosTrab01.dir

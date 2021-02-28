@@ -80,6 +80,14 @@ double *gerar_vetor_isolamentos(double *isolamentos_) {
         a = a + resolucao;
         b = b + resolucao;
     }
+
+    // Evita que o isolamento seja mostrado na tabela utilizando notacao exponencial
+    for (int j = 0; j < 6; ++j) {
+        if (isolamentos_[j] < 0.01 && isolamentos_[j] > -0.01){
+            isolamentos_[j] = 0;
+        }
+    }
+
     qtd_raizes = i / 2;
     return isolamentos_;
 }

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/victor/CLionProjects/metodosNumericosTrab01/main.cpp
+/home/victor/dev/metodosNumericosTrab01/main.cpp
 iostream
 -
 cmath
