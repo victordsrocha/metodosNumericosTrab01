@@ -1,3 +1,7 @@
+//
+// Victor de Sousa Rocha 02/2021
+//
+
 #include <iostream>
 #include <cmath>
 #include <list>
@@ -5,21 +9,23 @@
 
 using namespace std;
 
+// variaveis globais
+
+int opcao;
+double x0;
 int registro_id = 1;
-double a3 = 1;
-double a2 = 1;
-double precisao = 0.001;
-double d0 = 0.5;
-double lambda = 0.05;
-int n_lambda = 1;
-int n_parametros = 1;
+double a3;
+double a2;
+double precisao;
+int n_lambda; // quantidade opcoes lambda
+int n_parametros; // quantidade pares a3,a2
 list<double> lambda_list;
 list<double> a3_list;
 list<double> a2_list;
-double isolamentos[6];
-double iniciais[3];
-int qtd_raizes;
+double isolamentos[6]; // isolamentos de todas as raizes em um unico vetor
+int qtd_raizes; // quantidade de raizes: leva em conta que a função pode ter 1 ou 3 raizes reais
 
+// struct para armazenar os resultados de todas as raizes para um determinado metodo e parametros
 struct resultado_geral {
     bool solucao_1{};
     bool solucao_2{};
@@ -42,6 +48,7 @@ struct resultado_geral {
     string metodo;
 };
 
+// struct para armazenar os dados de uma unica raiz
 struct resultado_individual {
     bool solucao{};
     double isolamento[2]{};
@@ -50,10 +57,12 @@ struct resultado_individual {
     int num_iter{};
 };
 
+// funcao do pendulo
 double fpendulo(double d) {
     return a3 * pow(d, 3) - 9 * a2 * d + 3;
 }
 
+// bolzano
 bool bolzano_fpendulo(double a, double b) {
     return fpendulo(a) * fpendulo(b) < 0;
 }
@@ -83,7 +92,7 @@ double *gerar_vetor_isolamentos(double *isolamentos_) {
 
     // Evita que o isolamento seja mostrado na tabela utilizando notacao exponencial
     for (int j = 0; j < 6; ++j) {
-        if (isolamentos_[j] < 0.01 && isolamentos_[j] > -0.01){
+        if (isolamentos_[j] < 0.01 && isolamentos_[j] > -0.01) {
             isolamentos_[j] = 0;
         }
     }
@@ -92,25 +101,32 @@ double *gerar_vetor_isolamentos(double *isolamentos_) {
     return isolamentos_;
 }
 
-// gera os pontos inicias com base na média dos valores a e b de isolamento da raiz
-double *gerar_vetor_pontos_iniciais(double *iniciais_, const double *isolamentos_) {
-    for (int i = 0; i < qtd_raizes; ++i) {
-        iniciais_[i] = (isolamentos_[2 * i] + isolamentos_[2 * i + 1]) / 2;
-    }
-}
-
+//derivada da funcao do pendulo pelo metodo analitico
 double derivada_fpendulo(double d) {
     return 3 * a3 * pow(d, 2) - 9 * a2;
 }
 
+//derivada da funcao do pendulo utilizando metodo numerico (diferencas finitas)
 double nDeriv(double x, double (*function)(double)) {
     double h = 0.001;
     return (function(x + h) - function(x - h)) / (2 * h);
 }
 
-resultado_individual newton_original(int i_x, int i_a) {
+// metodo de newton original
+// recebe o indice do vetor de isolamento
+resultado_individual newton_original(int i_a) {
 
-    double x = iniciais[i_x];
+    // x inicial
+    double x;
+    if (opcao == 1) {
+        // dado pelo usuario
+        x = x0;
+    } else {
+        // caso contrario
+        // o valor inicial de x é dado pelo valor central entre os isolamentos encontrados para a raiz
+        x = (isolamentos[i_a] + isolamentos[i_a + 1]) / 2;
+    }
+
 
     int maxIteracoes = 100;
     int numIteracoes;
@@ -128,6 +144,8 @@ resultado_individual newton_original(int i_x, int i_a) {
         }
         x = x - y / dy;
     }
+
+    // Preenche o struct res com os valores encontrados e com os valores de isolamento da raiz
     resultado_individual res;
     res.solucao = solucao;
     if (solucao) {
@@ -135,15 +153,15 @@ resultado_individual newton_original(int i_x, int i_a) {
         res.f_d = fpendulo(x);
         res.num_iter = numIteracoes;
     }
-
     res.isolamento[0] = isolamentos[i_a];
     res.isolamento[1] = isolamentos[i_a + 1];
     return res;
 }
 
+// repete o procedimento newton original para todas as raizes e armazena os resultados
 resultado_geral newton_original_geral() {
 
-    resultado_individual r1 = newton_original(0, 0);
+    resultado_individual r1 = newton_original(0);
 
     resultado_geral rg;
 
@@ -161,9 +179,9 @@ resultado_geral newton_original_geral() {
         rg.f_d_1 = r1.f_d;
     }
 
-    if (qtd_raizes == 3) {
-        resultado_individual r2 = newton_original(1, 2);
-        resultado_individual r3 = newton_original(2, 4);
+    if (qtd_raizes == 3 && opcao == 2) {
+        resultado_individual r2 = newton_original(2);
+        resultado_individual r3 = newton_original(4);
 
         rg.isolamento_2[0] = r2.isolamento[0];
         rg.isolamento_2[1] = r2.isolamento[1];
@@ -185,13 +203,23 @@ resultado_geral newton_original_geral() {
             rg.f_d_3 = r3.f_d;
         }
     }
-
     return rg;
 }
 
-resultado_individual newton_derivada(int i_x, int i_a) {
+// metodo de newton utilizando metodo numerico para calcular a derivada
+// recebe como parametro o indice do vetor de isolamentos
+resultado_individual newton_derivada(int i_a) {
 
-    double x = iniciais[i_x];
+    // x inicial
+    double x;
+    if (opcao == 1) {
+        // dado pelo usuario
+        x = x0;
+    } else {
+        // caso contrario
+        // o valor inicial de x é dado pelo valor central entre os isolamentos encontrados para a raiz
+        x = (isolamentos[i_a] + isolamentos[i_a + 1]) / 2;
+    }
 
     int maxIteracoes = 100;
     int numIteracoes;
@@ -200,7 +228,7 @@ resultado_individual newton_derivada(int i_x, int i_a) {
 
     for (int i = 0; i < maxIteracoes; ++i) {
         double y = fpendulo(x);
-        double dy = nDeriv(x, fpendulo);
+        double dy = nDeriv(x, fpendulo); // derivada numerica
 
         if (abs(y) < precisao) {
             solucao = true;
@@ -222,9 +250,10 @@ resultado_individual newton_derivada(int i_x, int i_a) {
     return res;
 }
 
+// repete o procedimento newton derivada para todas as raizes e armazena os resultados
 resultado_geral newton_derivada_geral() {
 
-    resultado_individual r1 = newton_derivada(0, 0);
+    resultado_individual r1 = newton_derivada(0);
 
     resultado_geral rg;
 
@@ -242,9 +271,9 @@ resultado_geral newton_derivada_geral() {
         rg.f_d_1 = r1.f_d;
     }
 
-    if (qtd_raizes == 3) {
-        resultado_individual r2 = newton_derivada(1, 2);
-        resultado_individual r3 = newton_derivada(2, 4);
+    if (qtd_raizes == 3 && opcao == 2) {
+        resultado_individual r2 = newton_derivada(2);
+        resultado_individual r3 = newton_derivada(4);
 
         rg.isolamento_2[0] = r2.isolamento[0];
         rg.isolamento_2[1] = r2.isolamento[1];
@@ -270,8 +299,21 @@ resultado_geral newton_derivada_geral() {
     return rg;
 }
 
-resultado_individual newton_FL(int i_x, int i_a, double lambda_) {
-    double x = iniciais[i_x];
+// metodo de newton FL
+// recebe o indice do vetor de isolamentos e o valor lambda
+resultado_individual newton_FL(int i_a, double lambda_) {
+
+    // x inicial
+    double x;
+    if (opcao == 1) {
+        // dado pelo usuario
+        x = x0;
+    } else {
+        // caso contrario
+        // o valor inicial de x é dado pelo valor central entre os isolamentos encontrados para a raiz
+        x = (isolamentos[i_a] + isolamentos[i_a + 1]) / 2;
+    }
+
     int maxIteracoes = 100;
     int numIteracoes;
 
@@ -310,9 +352,10 @@ resultado_individual newton_FL(int i_x, int i_a, double lambda_) {
     return res;
 }
 
+// repete o procedimento newton FL para todas as raizes e todos os valores lambda e armazena os resultados
 resultado_geral newton_FL_geral(double _lambda) {
 
-    resultado_individual r1 = newton_FL(0, 0, _lambda);
+    resultado_individual r1 = newton_FL(0, _lambda);
 
     resultado_geral rg;
 
@@ -332,9 +375,9 @@ resultado_geral newton_FL_geral(double _lambda) {
         rg.f_d_1 = r1.f_d;
     }
 
-    if (qtd_raizes == 3) {
-        resultado_individual r2 = newton_FL(1, 2, _lambda);
-        resultado_individual r3 = newton_FL(2, 4, _lambda);
+    if (qtd_raizes == 3 && opcao == 2) {
+        resultado_individual r2 = newton_FL(2, _lambda);
+        resultado_individual r3 = newton_FL(4, _lambda);
 
         rg.isolamento_2[0] = r2.isolamento[0];
         rg.isolamento_2[1] = r2.isolamento[1];
@@ -360,6 +403,7 @@ resultado_geral newton_FL_geral(double _lambda) {
     return rg;
 }
 
+// preenche o cabecalho da tabela quadro-resposta
 void cabecalho_resultado() {
     ofstream myFile;
     myFile.open("resultados.csv");
@@ -371,6 +415,7 @@ void cabecalho_resultado() {
            << endl;
 }
 
+// preenche uma linha da tabela quadro-resposta
 void registrar_resultado(const resultado_geral &rg) {
     ofstream myFile;
     myFile.open("resultados.csv", std::fstream::out | std::fstream::app);
@@ -386,9 +431,13 @@ void registrar_resultado(const resultado_geral &rg) {
         myFile << "" << ",";
     }
 
-    myFile << qtd_raizes << ",";
+    if (opcao == 2) {
+        myFile << qtd_raizes << ",";
 
-    myFile << rg.isolamento_1[0] << " ~ " << rg.isolamento_1[1] << ",";
+        myFile << rg.isolamento_1[0] << " ~ " << rg.isolamento_1[1] << ",";
+    } else {
+        myFile << "" << "," << "" << ",";
+    }
 
     if (rg.solucao_1) {
         myFile << rg.raiz_1 << "," << rg.f_d_1 << "," << rg.num_iter_1 << ",";
@@ -396,7 +445,7 @@ void registrar_resultado(const resultado_geral &rg) {
         myFile << "" << "," << "" << "," << "" << ",";
     }
 
-    if (qtd_raizes == 3) {
+    if (qtd_raizes == 3 && opcao == 2) {
         myFile << rg.isolamento_2[0] << " ~ " << rg.isolamento_2[1] << ",";
 
         if (rg.solucao_2) {
@@ -421,13 +470,13 @@ void registrar_resultado(const resultado_geral &rg) {
     registro_id++;
 }
 
+// realiza todos os calculos de acordo com as entradas do usuario
 void encontrar_raizes() {
     for (int i = 0; i < n_parametros; ++i) {
         a3 = a3_list.front();
         a2 = a2_list.front();
 
         gerar_vetor_isolamentos(isolamentos);
-        gerar_vetor_pontos_iniciais(iniciais, isolamentos);
 
         resultado_geral original = newton_original_geral();
         registrar_resultado(original);
@@ -456,6 +505,39 @@ void print_cabecalho() {
     cout << endl;
 }
 
+void input_opcao() {
+    system("clear");
+    print_cabecalho();
+    cout << "Digite 1 para calcular raizes a partir de um unico valor d0 dado pelo usuario" << endl;
+    cout << "\nDigite 2 para calcular todas as raizes utilizando isolamentos gerados por metodos numericos\n" << endl;
+
+    cout << "opcao: ";
+
+    cin >> opcao;
+
+    while ((!cin) || (opcao != 1 && opcao != 2)) {
+        cin.clear();
+        cin.ignore(numeric_limits<int>::max(), '\n');
+        cout << "Erro\nDigite novamente: ";
+        cin >> opcao;
+    }
+}
+
+void input_x0() {
+    system("clear");
+    print_cabecalho();
+    cout << "Digite um valor para d0: ";
+    cin >> x0;
+
+    while ((!cin)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout
+                << "Precisao não está no formato correto. A Precisao deve ser um valor real.\nDigite novamente: ";
+        cin >> precisao;
+    }
+}
+
 void input_precisao() {
     system("clear");
     print_cabecalho();
@@ -464,7 +546,7 @@ void input_precisao() {
 
     while ((!cin) || precisao <= 0 || precisao > 0.1) {
         cin.clear();
-        cin.ignore(numeric_limits<int>::max(), '\n');
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout
                 << "Precisao não está no formato correto. A Precisao deve ser um valor real no intervalo ]0,0.1].\nDigite novamente: ";
         cin >> precisao;
@@ -545,18 +627,22 @@ void input_lambda() {
 }
 
 void input() {
+    input_opcao();
     input_parametros();
     input_lambda();
     input_precisao();
+    if (opcao == 1) {
+        input_x0();
+    }
 }
 
 void output() {
     system("clear");
     print_cabecalho();
 
-    cout << "A tabela resultados.csv contendo todos os resultados foi criada no mesmo diretorio "
-            "deste programa\n";
-    cout << "Pressione qualquer tecla para fechar";
+    cout << "\n\n\n~~~~~\nA tabela quadro-resposta.csv contendo todos os resultados foi criada no mesmo diretorio "
+            "deste programa\n\n";
+    cout << "Pressione qualquer tecla para fechar\n\n\n~~~~~\n";
 }
 
 int main() {
@@ -568,5 +654,9 @@ int main() {
 
     return 0;
 }
+
+/*
+ * exemplo para testar newton FL: a3 = 1, a2 = 3, d0 = 3
+ */
 
 

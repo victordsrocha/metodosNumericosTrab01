@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/metodosNumericosTrab01.dir/main.cpp.o"
+  "CMakeFiles/metodosNumericosTrab01.dir/teste.cpp.o"
   "metodosNumericosTrab01"
   "metodosNumericosTrab01.pdb"
 )

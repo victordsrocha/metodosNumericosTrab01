@@ -85,6 +85,9 @@
 		<Unit filename="/home/victor/dev/metodosNumericosTrab01/main.cpp">
 			<Option target="metodosNumericosTrab01"/>
 		</Unit>
+		<Unit filename="/home/victor/dev/metodosNumericosTrab01/teste.cpp">
+			<Option target="metodosNumericosTrab01"/>
+		</Unit>
 		<Unit filename="/home/victor/dev/metodosNumericosTrab01/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

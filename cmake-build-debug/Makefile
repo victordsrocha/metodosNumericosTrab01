@@ -170,6 +170,33 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+teste.o: teste.cpp.o
+
+.PHONY : teste.o
+
+# target to build an object file
+teste.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/teste.cpp.o
+.PHONY : teste.cpp.o
+
+teste.i: teste.cpp.i
+
+.PHONY : teste.i
+
+# target to preprocess a source file
+teste.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/teste.cpp.i
+.PHONY : teste.cpp.i
+
+teste.s: teste.cpp.s
+
+.PHONY : teste.s
+
+# target to generate assembly for a file
+teste.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/metodosNumericosTrab01.dir/build.make CMakeFiles/metodosNumericosTrab01.dir/teste.cpp.s
+.PHONY : teste.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -182,6 +209,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... teste.o"
+	@echo "... teste.i"
+	@echo "... teste.s"
 .PHONY : help
 
 
